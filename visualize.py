@@ -4,7 +4,7 @@ import numpy as np
 import moviepy.editor as mpy
 import random
 import torch
-from scipy.misc import toimage
+from PIL import Image
 from tqdm import tqdm
 from pytorch_pretrained_biggan import (BigGAN, one_hot_from_names, truncated_noise_sample,
                                        save_as_images, display_in_terminal)
@@ -41,6 +41,7 @@ else:
 
 #set model name based on resolution
 model_name='biggan-deep-' + args.resolution
+res = int(args.resolution)
 
 frame_length=args.frame_length
 
@@ -380,8 +381,10 @@ for i in tqdm(range(frame_lim)):
     output_cpu=output.cpu().data.numpy()
 
     #convert to image array and add to frames
-    for out in output_cpu:    
-        im=np.array(toimage(out))
+    for out in output_cpu:
+        out = (out * 255).astype(np.uint8).reshape((res,res,3))
+        # print(out.shape)  
+        im=np.array(Image.fromarray(out))
         frames.append(im)
         
     #empty cuda cache
